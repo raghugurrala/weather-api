@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+        background-image: url('https://images.pexels.com/photos/21492/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=600');
+        background-size: cover;
+        background-position: center;
+    }
+    #weather-container {
+        background: rgba(255, 255, 255, 0.3);
+        max-width: 400px;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        text-align: center;
+    }
+    h2, label, p {
+        color: #fff;
+        margin: 8px 0;
+    }
+    input {
+        width: 100%;
+        padding-right: 16px;
+        padding: 8px;
+        box-sizing: border-box;
+        border-radius: 10px;
+        border: 1px solid white;
+        margin-top: 20px;
+    }
+    
+    button {
+        background: #debff4;
+        color: rgb(10, 1, 1);
+        padding: 10px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        margin-top: 20px;
+        width: 100px;
+        font-size: 15px;
+    }
+    
+    button:hover {
+        background: #8b48d7;
+    }
+    
+    #temp-div p {
+        font-size: 60px;
+        margin-top: -30px;
+    }
+    
+    #weather-info {
+        font-size: 20px;
+    }
+    
+    #weather-icon {
+        width: 200px;
+        height: 200px;
+        margin: 0 auto 10px; 
+        margin-bottom: 0;
+        display: none;
+    }
+    
+    #humidity-div, #wind-div {
+        margin-top: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+    
+    #hourly-forecast {
+        margin-top: 20px;
+        overflow-x: auto;
+        white-space: nowrap;
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .hourly-item {
+        flex: 0 0 auto;
+        width: 80px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-right: 10px;
+        color: white;
+    }
+    
+    .hourly-item img {
+        width: 30px;
+        height: 30px;
+        margin-bottom: 5px;
+    }
+    
+    #hourly-heading {
+        color: #fff;
+        margin-top: 10px;
+    }
+    #weather-details {
+        display: flex;
+        flex-direction: column; 
+        align-items: center; 
+        margin-top: 20px;
+        background: rgba(255, 255, 255, 0.2); 
+        padding: 15px;
+        border-radius: 10px; 
+        font-size: 18px; 
+    }
+    #humidity-div, #wind-div {
+        display: flex;
+        align-items: center;
+        color: white;
+        gap: 10px; 
+        margin-bottom: 15px; 
+        justify-content: center;
+    }
+    
+    #humidity-div img, #wind-div img {
+        width: 40px; 
+        height: 40px;
+    }
+    
+    #humidity, #wind-speed {
+        font-size: 20px; 
+    }</style>
+</head>
+<body>
+    <div id="weather-container">
+        <h2>Weather App</h2>
+        <input type="text" id="city" placeholder="Enter city">
+        <button onclick="getWeather()">Search</button>
+
+        <img id="weather-icon" alt="Weather Icon" style="display: none;">
+
+        <div id="temp-div"></div>
+        <div id="weather-info"></div>
+        <div id="humidity-div" style="display: none;">
+            <img src="https://tse1.mm.bing.net/th?id=OIP.EvFohWFKpd6Tbl1tDGI5kQHaHa&pid=Api&P=0&h=180" alt="Humidity Icon" width="30" height="30">
+            <span id="humidity"></span>
+        </div>
+        <div id="wind-div" style="display: none;">
+            <img src="https://tse4.mm.bing.net/th?id=OIP.dnOoxWgIZeNMby0322ellgHaHa&pid=Api&P=0&h=180" alt="Wind Speed Icon" width="30" height="30">
+            <span id="wind-speed"></span>
+        </div>
+
+        <div id="hourly-forecast"></div>
+    </div>
+    <script src="script.js"></script>
+    <script>function getWeather() {
+        const apiKey = '6600aad5346e7fcb8e4b29ab142139fe';
+        const city = document.getElementById('city').value;
+    
+        if (!city) {
+            alert('Please enter a city');
+            return;
+        }
+    
+        const currentWeatherUrl = https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey};
+        const forecastUrl = https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey};
+    
+        fetch(currentWeatherUrl)
+            .then(response => response.json())
+            .then(data => {
+                displayWeather(data);
+            })
+            .catch(error => {
+                console.error('Error fetching current weather data:', error);
+                alert('Error fetching current weather data. Please try again.');
+            });
+    
+        fetch(forecastUrl)
+            .then(response => response.json())
+            .then(data => {
+                displayHourlyForecast(data.list);
+            })
+            .catch(error => {
+                console.error('Error fetching hourly forecast data:', error);
+                alert('Error fetching hourly forecast data. Please try again.');
+            });
+    }
+    
+    function displayWeather(data) {
+        const tempDivInfo = document.getElementById('temp-div');
+        const weatherInfoDiv = document.getElementById('weather-info');
+        const weatherIcon = document.getElementById('weather-icon');
+        const humidityDiv = document.getElementById('humidity-div');
+        const windDiv = document.getElementById('wind-div');
+        const humiditySpan = document.getElementById('humidity');
+        const windSpeedSpan = document.getElementById('wind-speed');
+        const hourlyForecastDiv = document.getElementById('hourly-forecast');
+    
+        weatherInfoDiv.innerHTML = '';
+        hourlyForecastDiv.innerHTML = '';
+        tempDivInfo.innerHTML = '';
+        humidityDiv.style.display = 'none';
+        windDiv.style.display = 'none'; 
+    
+        if (data.code === '404') {
+            weatherInfoDiv.innerHTML = <p>${data.message}</p>;
+        } else {
+            const cityName = data.name;
+            const temperature = Math.round(data.main.temp - 273.15); 
+            const description = data.weather[0].description;
+            const iconCode = data.weather[0].icon;
+            const iconUrl = https://openweathermap.org/img/wn/${iconCode}@4x.png;
+    
+            const temperatureHTML = `
+                <p>${temperature}°C</p>
+            `;
+    
+            const weatherHtml = `
+                <p>${cityName}</p>
+                <p>${description}</p>
+            `;
+    
+            tempDivInfo.innerHTML = temperatureHTML;
+            weatherInfoDiv.innerHTML = weatherHtml;
+            weatherIcon.src = iconUrl;
+            weatherIcon.alt = description;
+    
+            const humidity = data.main.humidity; // Humidity
+            const windSpeed = Math.round(data.wind.speed * 3.6); 
+            humiditySpan.innerHTML = Humidity: ${humidity}%;
+            windSpeedSpan.innerHTML = Wind Speed: ${windSpeed} km/h;
+            
+            humidityDiv.style.display = 'flex'; 
+            windDiv.style.display = 'flex'; 
+    
+            setWeatherBackground(description);
+    
+            showImage();
+        }
+    }
+    
+    function displayHourlyForecast(hourlyData) {
+        const hourlyForecastDiv = document.getElementById('hourly-forecast');
+    
+        const next24Hours = hourlyData.slice(0, 8); 
+    
+        next24Hours.forEach(item => {
+            const dateTime = new Date(item.dt * 1000); 
+            const hour = dateTime.getHours();
+            const temperature = Math.round(item.main.temp - 273.15); 
+            const iconCode = item.weather[0].icon;
+            const iconUrl = https://openweathermap.org/img/wn/${iconCode}.png;
+    
+            const hourlyItemHtml = `
+                <div class="hourly-item">
+                    <span>${hour}:00</span>
+                    <img src="${iconUrl}" alt="Hourly Weather Icon">
+                    <span>${temperature}°C</span>
+                </div>
+            `;
+    
+            hourlyForecastDiv.innerHTML += hourlyItemHtml;
+        });
+    }
+    
+    function showImage() {
+        const weatherIcon = document.getElementById('weather-icon');
+        weatherIcon.style.display = 'block'; 
+    }
+    
+    function setWeatherBackground(description) {
+        const body = document.body;
+    
+        let backgroundImage = 'url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTZVQs7Uxz4mg5EXBM_zZZEwbRkpVeWrY5cQ&s")';
+    
+        if (description.includes('clear')) {
+            backgroundImage = 'url("https://wallpaperaccess.com/full/3265131.jpg")'; 
+        } else if (description.includes('clouds')) {
+            backgroundImage = 'url("https://wallpaperaccess.com/full/1462185.jpg")'; 
+        } else if (description.includes('rain') || description.includes('drizzle')) {
+            backgroundImage = 'url("https://static.vecteezy.com/system/resources/previews/029/771/758/large_2x/epicgraphy-shot-of-rainy-season-background-enjoying-nature-rainfall-and-happy-life-concept-generative-ai-free-photo.jpeg")'; // Rainy background
+        } else if (description.includes('thunderstorm')) {
+            backgroundImage = 'url("https://cdn.wallpapersafari.com/1/87/HqR9ca.jpg")'; 
+        } else if (description.includes('snow')) {
+            backgroundImage = 'url("https://images.wallpapersden.com/image/download/forest-house-covered-in-snow-4k_bGdnaGuUmZqaraWkpJRpZW5qrWdoZWg.jpg")'; 
+        } else if (description.includes('mist') || description.includes('fog')) {
+            backgroundImage = 'url("https://magazine.vab.be/wp-content/uploads/2017/04/mist.jpg")'; 
+        }
+    
+        body.style.backgroundImage = backgroundImage;
+        body.style.transition = 'background-image 0.5s ease-in-out'; 
+    }</script>
+</body>
+</html>
